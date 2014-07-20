@@ -1,0 +1,324 @@
+<html>
+<head>
+<style> 
+
+#ch{
+ float:right;
+ clear:right;
+}
+#disp
+{
+float:left;
+clear:left;
+}
+#textDisplay
+
+{
+float:left;
+    clear:left;
+}
+
+</style>
+<script src="http://yui.yahooapis.com/3.15.0/build/yui/yui-min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script src="http://connect.facebook.net/en_US/all.js"></script>
+
+
+<script>
+var p;
+var cap;
+var pri;
+var na;
+var sym;
+
+function validateForm()
+{
+var stock_symbol=document.forms["stock-search"]["stock_symbol"].value;
+if (stock_symbol==null || stock_symbol=="")
+  {
+  alert("Please Enter a company symbol");
+  document.getElementById("disp").innerHTML="";
+  document.getElementById("ch").innerHTML="";
+  document.getElementById("demo").innerHTML="";
+   document.getElementById("textDisplay").innerHTML="";
+  $("#h").hide();
+  return false;
+  }
+  
+  
+  else{
+  var result = "http://cs-server.usc.edu:37297/examples/servlet/HelloWorldExample?stock_symbol="+stock_symbol;
+
+  var ht="<br>";
+  var n="";
+  var sch="";
+$.getJSON(result,function(data){
+
+if(data.result == null )
+{output = document.getElementById("disp");
+		output.innerHTML="<h1><font color=\"white\">Stock Info not Available</font></h1>";
+		
+  document.getElementById("ch").innerHTML="";
+  document.getElementById("demo").innerHTML="";
+   document.getElementById("textDisplay").innerHTML="";
+    $("#h").hide();
+return false;
+}
+else if(data.result.News.Item == null )
+{
+output = document.getElementById("disp");
+		output.innerHTML="<h1><font color=\"white\">News Info not Available</font></h1>";
+		
+  document.getElementById("ch").innerHTML="";
+  document.getElementById("demo").innerHTML="";
+   document.getElementById("textDisplay").innerHTML="";
+    $("#h").hide();
+return false;
+
+}
+else
+{
+	na= data.result.Name;
+	sym='http://finance.yahoo.com/q?s='+data.result.Symbol;
+	cap= 'Stock info of '+data.result.Name+' ('+data.result.Symbol+')';
+	pri= 'Last Trade Price:'+data.result.Quote.LastTradePriceOnly +',Change:'+data.result.Quote.ChangeType+data.result.Quote.Change+'('+data.result.Quote.ChangeInPercent+')';
+	p='http://chart.finance.yahoo.com/t?s='+data.result.Symbol+'&amp;lang=en-US&amp;amp;width=300&amp;height=180';
+		
+		
+		output = document.getElementById("disp");
+		output.innerHTML="<br><br><font color=\"white\"><h1>"+data.result.Name+"("+data.result.Symbol+")<br></h1></font>";
+			if(data.result.Quote.ChangeType=="+")
+			{
+			output.innerHTML+="<font color=\"white\"><h1>"+data.result.Quote.LastTradePriceOnly +"</font><font color=\"green\"><img src=\"http://www-scf.usc.edu/~csci571/2014Spring/hw6/up_g.gif\">"+data.result.Quote.Change+"("+data.result.Quote.ChangeInPercent+")"+"</font></h1>";
+			}
+			else
+			{
+			output.innerHTML+="<font color=\"white\"><h2>"+data.result.Quote.LastTradePriceOnly +"</font><font color=\"red\"><img src=\"http://www-scf.usc.edu/~csci571/2014Spring/hw6/down_r.gif\">"+data.result.Quote.Change+"("+data.result.Quote.ChangeInPercent+")"+"</font></h2>";
+			}
+			chart = document.getElementById("ch");
+			chart.innerHTML="<img src=\""+data.result.StockChartImageURL+"\" height=\"180\" width=\"300\">";
+			
+	
+$("#textDisplay").show();
+			
+	
+$("#h").show();
+	var	close = data.result.Quote.PreviousClose;
+		 
+	var	low=data.result.Quote.DaysLow;
+		
+	var	high=data.result.Quote.DaysHigh;
+		
+	var	open=data.result.Quote.Open;
+		
+	var	year_low=data.result.Quote.YearLow;
+		
+	var	year_high=data.result.Quote.YearHigh;
+		
+	var	bid=data.result.Quote.Bid;
+		
+	var	vol=data.result.Quote.Volume;
+			
+	var	ask=data.result.Quote.Ask;
+		
+	var	daily_vol=data.result.Quote.AverageDailyVolume;
+		
+	var	price=data.result.Quote.OneYearTargetPrice;
+		
+	var	cap=data.result.Quote.MarketCapitalization;
+
+	
+	 ht="<br><table style=\"width:100%;\">";
+	     	
+	   ht+="<tr><td style=\"align:left\">Previous Close:</td><td style=\"align:right\">"+close+"</td>";
+	   ht+= "<td style=\"align:left\">Days Range:</td><td style=\"align:right\">"+low+"-"+high+"</td></tr>"; 
+		
+	   ht += "<tr><td style=\"align:left\">Open:</td><td style=\"align:right\">"+open+"</td>";
+	   ht += "<td style=\"align:left\">52wk Range:</td><td style=\"align:right\">"+year_low+"-"+year_high+"</td></tr>"; 
+		
+       ht += "<tr><td style=\"align:left\">Bid:</td><td style=\"align:right\">"+bid+"</td>";
+	   ht += "<td style=\"align:left\">Volume:</td><td style=\"align:right\">"+vol+"</td></tr>";
+	        
+       ht +="<tr><td style=\"align:left\">Ask:</td><td style=\"align:right\">"+ask+"</td>";
+	   ht += "<td style=\"align:left\">Avg Vol:</td><td style=\"align:right\">"+daily_vol+"</td></tr>";
+        	
+       ht += "<tr><td style=\"align:left\">1y Target Est:</td><td style=\"align:right\">"+price+"</td>";
+	   ht +="<td style=\"align:left\">Market Cap:</td><td style=\"align:right\">"+cap+"</td></tr>";
+   ht+= "</table>";
+   n="<ul>";
+   for(i=0;i<data.result.News.Item.length;i++) 
+  {
+ 
+
+  n+="<li><a href='" + data.result.News.Item[i].Link + "'>" + data.result.News.Item[i].Title + "</a></li>";
+  } 
+ n+="</ul>"; 
+  s(ht,n);
+
+}
+}
+);
+
+
+$("#demo").empty();
+function s(ht,n){
+YUI().use('tabview', function(Y) {
+    var tabview = new Y.TabView({
+        children: [{
+            label: 'Quote Information',
+            content: ht
+        }, {
+            label: 'News',
+            content: n
+        }]
+    });
+
+    tabview.render('#demo');
+});
+}
+
+}
+}
+function load(url) {
+    	if (window.XMLHttpRequest) 
+		 {// code for IE7+, Firefox, Chrome, Opera, Safari 
+		 xmlhttp=new XMLHttpRequest(); 
+		 } 
+		 else 
+		 {// code for IE6, IE5 
+		 xmlhttp=new ActiveXObject("Microsoft.XMLHTTP"); 
+		 } 
+		 xmlhttp.open("GET",url,false); //open, send, responseXML are 
+		
+		xmlhttp.send();		 
+		 xmlDoc=xmlhttp.responseXML;
+                
+		return xmlDoc; 
+		} 
+
+</script>
+<script>
+
+YUI().use('autocomplete', function (Y){
+        var YAHOO = window.YAHOO = {Finance: {SymbolSuggest: {}}};
+		var close = new Y.AutoComplete({
+			render:true,
+			inputNode:'#stock',
+			activateFirstItem: true,
+			resultFilters:['charMatch','wordMatch'],
+			resultTextLocator: function(result){
+			return result.symbol +','+ result.name + '(' + result.exch + ')';
+			},
+			source: function(query, callback) {
+			
+							$.ajax({
+								type: 'GET',
+								url: 'http://autoc.finance.yahoo.com/autoc?query='+query,
+								data: {query:query},
+								dataType: 'jsonp',
+								jsonpCallback: 'YAHOO.Finance.SymbolSuggest.ssCallback'
+							});
+							 
+							YAHOO.Finance.SymbolSuggest.ssCallback = function (data) {
+								callback(data.ResultSet.Result);
+							}
+					},
+					 on : {
+        select : function(e) {
+		var a=(e.result.text).split(",");
+            document.getElementById('stock').value=a[0];
+			$("#search").click();
+        }
+    }
+					
+		}
+		
+		
+		);
+		var close=new Y.AutoComplete({inputNode:'#stock'});
+		close.render();
+	});
+</script>	
+</head>
+
+<body class="yui3-skin-sam" background="http://t.wallpaperweb.org/wallpaper/buildings/1920x1080/01118_manhattan_2560x1600.jpg"> 
+<div id="fb-root"></div>
+<script>
+
+  window.fbAsyncInit = function() {
+  FB.init({
+    appId      : '608620909232311',
+    status     : true, // check login status
+    cookie     : true, // enable cookies to allow the server to access the session
+    xfbml      : true  // parse XFBML
+  });
+
+  FB.Event.subscribe('auth.authResponseChange', function(response) {
+  
+    if (response.status === 'connected') {
+    
+      testAPI();
+    } else if (response.status === 'not_authorized') {
+      
+      FB.login();
+    } else {
+     
+      FB.login();
+    }
+  });
+  };
+
+  // Load the SDK asynchronously
+  (function(d){
+   var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+   if (d.getElementById(id)) {return;}
+   js = d.createElement('script'); js.id = id; js.async = true;
+   js.src = "//connect.facebook.net/en_US/all.js";
+   ref.parentNode.insertBefore(js, ref);
+  }(document));
+  function feed() {
+
+  FB.ui(
+  {
+    method: 'feed',
+    name: na,
+    link: sym,
+    picture: p,
+    caption: cap,
+    description: pri
+  },
+  function(response) {
+    if (response && response.post_id) {
+      alert('Post was published.');
+    } else {
+      alert('Post was not published.');
+    }
+  }
+);
+  
+  }
+</script>
+
+
+
+	<div id='upper' align="center">
+	
+   <form name='stock-search'  onsubmit="Javascript:validateForm();return false;" method="get"><h3>
+   <font color="white"> Company Symbol:</font><input type='text' id='stock' name='stock_symbol' size="150" />
+    <input type='button' id='search' value='Search' onclick="Javascript:validateForm()"/></h3>
+	
+
+	</form>
+	
+
+</div>
+
+<div id="disp"><p></p></div>
+<div id="ch"></div>	
+<div id="textDisplay" style="display:none">
+<a href="javascript:;"><img show-faces="true" onclick="feed()" src="facebook.jpg" style="display:hidden"></img></a></div>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><hr id='h' style='display:none'><br><br>
+<div id="demo"></div>
+<NOSCRIPT>
+</body>
+</html>
